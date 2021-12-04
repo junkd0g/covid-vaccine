@@ -27,10 +27,6 @@ type ServerConfig struct {
 	Port string `yaml:"port"`
 }
 
-type configOB interface {
-	GetAppConfig() AppConf
-}
-
 //GetAppConfig reads a spefic file and return the yaml format of it
 //return ServerConfig struct yaml format of the config file
 func GetAppConfig(path string) (*AppConf, error) {

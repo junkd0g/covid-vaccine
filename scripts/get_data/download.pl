@@ -15,7 +15,14 @@ my $obj = {};
 my $counter = 0;
 my $total = 0;
 while (my $line = <$file_data>) {
-    $total++;
+    if ($total == 0){
+         chomp $line;
+
+        my @fields = split "," , $line;
+
+        $total++;
+        next;
+    }
     chomp $line;
 
     my @fields = split "," , $line;
@@ -60,6 +67,7 @@ while (my $line = <$file_data>) {
     $obj->{people_vaccinated_per_hundred} = $people_vaccinated_per_hundred;
     $obj->{people_fully_vaccinated_per_hundred} = $people_fully_vaccinated_per_hundred;
     $obj->{total_boosters_per_hundred} = $total_boosters_per_hundred;
+    $total++;
 }
 
 sub add_field{

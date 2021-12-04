@@ -1,0 +1,1 @@
+mockgen -destination=internal/mocks/mock_vaccine.go  -package=Mocks -source=internal/vaccine/vaccine.go

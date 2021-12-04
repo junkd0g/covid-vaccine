@@ -55,7 +55,10 @@ func (s Service) run() {
 	handler := c.Handler(s.Router)
 
 	fmt.Println("server running at port " + s.Port)
-	http.ListenAndServe(s.Port, handler)
+	err = http.ListenAndServe(s.Port, handler)
+	if err != nil {
+		panic(fmt.Errorf("listener_and_serve %w", err))
+	}
 }
 
 func main() {

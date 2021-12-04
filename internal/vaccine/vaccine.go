@@ -1,47 +1,46 @@
 package vaccine
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
+	"fmt"
+
+	"github.com/junkd0g/covid-vaccine/internal/data"
 )
 
-type Client struct{}
+type RD interface {
+	ReadData() (data.Countries, error)
+}
 
-type Response struct {
-	TotalVaccinations       int `json:"total_vaccinations"`
-	PeopleFullyVaccinations int `json:"fully_vaccinations"`
-	TotalBooster            int `json:"booster_vaccinations"`
+type client struct {
+	rd RD
+}
 
+type CountryDataResponse struct {
+	TotalVaccinations               int    `json:"total_vaccinations"`
+	PeopleFullyVaccinations         int    `json:"fully_vaccinations"`
+	TotalBooster                    int    `json:"booster_vaccinations"`
 	TotalVaccinationsPerHundred     string `json:"total_vaccinations_per_hundred"`
 	PeopleVaccinatedPerHundred      string `json:"people_vaccinated_per_hundred"`
 	PeopleFullyVaccinatedPerHundred string `json:"people_fully_vaccinated_per_hundred"`
 	TotalBoostersPerHundred         string `json:"total_boosters_per_hundred"`
 }
 
-func (c Client) readData() (Countries, error) {
-	jsonFile, err := os.Open("./scripts/get_data/data_out.json")
-	if err != nil {
-		return Countries{}, err
+// NewClient creates and return new client object
+func NewClient(readData RD) (client, error) {
+	if readData == nil {
+		return client{}, fmt.Errorf("vaccine_NewClient_empty_readData")
 	}
-
-	defer jsonFile.Close()
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return Countries{}, err
-	}
-	var countries Countries
-
-	json.Unmarshal(byteValue, &countries)
-	return countries, nil
+	return client{
+		rd: readData,
+	}, nil
 }
 
-func (c Client) CountryData(country string) (Response, error) {
-	var resp Response
+// CountryData return one couty's data
+func (c client) CountryData(country string) (CountryDataResponse, error) {
 
-	data, err := c.readData()
+	var resp CountryDataResponse
+	data, err := c.rd.ReadData()
 	if err != nil {
-		return Response{}, err
+		return CountryDataResponse{}, err
 	}
 
 	for _, x := range data.Data {
@@ -52,7 +51,6 @@ func (c Client) CountryData(country string) (Response, error) {
 			resp.TotalBooster = sl1[len(sl1)-1]
 			sl2 := x.PeopleFullyVaccinations
 			resp.PeopleFullyVaccinations = sl2[len(sl2)-1]
-
 			resp.TotalVaccinationsPerHundred = x.TotalVaccinationsPerHundred
 			resp.PeopleVaccinatedPerHundred = x.PeopleVaccinatedPerHundred
 			resp.PeopleFullyVaccinatedPerHundred = x.PeopleFullyVaccinatedPerHundred

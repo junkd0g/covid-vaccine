@@ -1,4 +1,4 @@
-package vaccine
+package data
 
 type Countries struct {
 	Data []struct {
