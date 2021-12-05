@@ -1,0 +1,29 @@
+{
+	"info": {
+		"_postman_id": "fbed3444-2295-4c45-88a3-3148e64c7217",
+		"name": "Covid Vaccine",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:8889/api/data/greece",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8889/api/data/greece",
+					"host": [
+						"localhost"
+					],
+					"port": "8889",
+					"path": [
+						"api",
+						"data",
+						"greece"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
