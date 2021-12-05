@@ -40,7 +40,7 @@ func (s Service) run() {
 	}
 
 	s.Port = configData.Server.Port
-	country, err := controller.NewCountry()
+	country, err := controller.NewCountry(nil, nil)
 	if err != nil {
 		panic(fmt.Errorf("creating_mail_controller %w", err))
 	}

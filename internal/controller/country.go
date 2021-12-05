@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -14,17 +13,33 @@ type Vaccine interface {
 	CountryData(country string) (vaccine.CountryDataResponse, error)
 }
 
+type JSON interface {
+	Marshal(v interface{}) ([]byte, error)
+}
+
 type EmailSendResponse struct {
 	Success bool `json:"success"`
 }
 
 type countryMiddlewareClient struct {
 	vaccineClient Vaccine
+	json          JSON
 }
 
 // NewCountry creates new object of mailjet's client
-func NewCountry() (*countryMiddlewareClient, error) {
-	return &countryMiddlewareClient{}, nil
+func NewCountry(countryData Vaccine, json JSON) (countryMiddlewareClient, error) {
+	if countryData == nil {
+		return countryMiddlewareClient{}, fmt.Errorf("controller_NewCountry_empty_countryData")
+	}
+
+	if json == nil {
+		return countryMiddlewareClient{}, fmt.Errorf("controller_NewCountry_empty_json")
+	}
+
+	return countryMiddlewareClient{
+		vaccineClient: countryData,
+		json:          json,
+	}, nil
 }
 
 //Middleware middleware for /api/data/{country}
@@ -35,12 +50,7 @@ func (c countryMiddlewareClient) Middleware(w http.ResponseWriter, r *http.Reque
 	jsonBody, status := c.perform(vars["country"])
 
 	w.WriteHeader(status)
-	status, err := w.Write(jsonBody)
-	if err != nil {
-		//TODO need some real logging
-		fmt.Println(status, err)
-	}
-
+	w.Write(jsonBody)
 }
 
 func (c countryMiddlewareClient) perform(country string) ([]byte, int) {
@@ -50,7 +60,7 @@ func (c countryMiddlewareClient) perform(country string) ([]byte, int) {
 		errorJSONBody, _ := merror.SimpeErrorResponseWithStatus(500, err)
 		return errorJSONBody, 500
 	}
-	jsonBody, err := json.Marshal(data)
+	jsonBody, err := c.json.Marshal(data)
 	if err != nil {
 		errorJSONBody, _ := merror.SimpeErrorResponseWithStatus(500, err)
 		return errorJSONBody, 500
