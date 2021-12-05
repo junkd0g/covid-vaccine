@@ -3,7 +3,6 @@ package main
 /*
 	Author : Iordanis Paschalidis
 	Date   : 03/12/2021
-
 */
 
 import (
