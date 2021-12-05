@@ -1,7 +1,6 @@
 package controller_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +32,7 @@ func getMocks(t *testing.T) *mocks {
 func Test_NewCountry(t *testing.T) {
 	m := getMocks(t)
 	t.Run("Create object successfully", func(t *testing.T) {
-		client, err := controller.NewCountry(m.rd, m.rjson)
+		client, err := controller.NewCountry(m.rd)
 		assert.Nil(t, err)
 		assert.NotNil(t, client)
 	})
@@ -41,20 +40,12 @@ func Test_NewCountry(t *testing.T) {
 	t.Run("No country data error", func(t *testing.T) {
 		expectedError := "controller_NewCountry_empty_countryData"
 
-		_, err := controller.NewCountry(nil, nil)
+		_, err := controller.NewCountry(nil)
 		assert.NotNil(t, err)
 		assert.Contains(t, err.Error(), expectedError)
 
 	})
 
-	t.Run("No json error", func(t *testing.T) {
-		expectedError := "controller_NewCountry_empty_json"
-
-		_, err := controller.NewCountry(m.rd, nil)
-		assert.NotNil(t, err)
-		assert.Contains(t, err.Error(), expectedError)
-
-	})
 }
 
 func Test_Middleware(t *testing.T) {
@@ -66,7 +57,7 @@ func Test_Middleware(t *testing.T) {
 			EXPECT().
 			CountryData(gomock.Any()).
 			Return(vaccine.CountryDataResponse{}, fmt.Errorf("some error"))
-		client, err := controller.NewCountry(m.rd, m.rjson)
+		client, err := controller.NewCountry(m.rd)
 		assert.Nil(t, err)
 		assert.NotNil(t, client)
 		client.Middleware(res, req)
@@ -74,28 +65,6 @@ func Test_Middleware(t *testing.T) {
 		expected := `{"message":"some error","status":500}`
 		assert.Equal(t, expected, res.Body.String())
 
-	})
-
-	t.Run("Return a 500 error when country json.Marshal an error", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/api/data/{country}", nil)
-		res := httptest.NewRecorder()
-		m.rd.
-			EXPECT().
-			CountryData(gomock.Any()).
-			Return(vaccine.CountryDataResponse{}, nil)
-
-		m.rjson.
-			EXPECT().
-			Marshal(vaccine.CountryDataResponse{}).
-			Return(nil, fmt.Errorf("some error"))
-
-		client, err := controller.NewCountry(m.rd, m.rjson)
-		assert.Nil(t, err)
-		assert.NotNil(t, client)
-		client.Middleware(res, req)
-		assert.Equal(t, 500, res.Code)
-		expected := `{"message":"some error","status":500}`
-		assert.Equal(t, expected, res.Body.String())
 	})
 
 	t.Run("Runs successfully", func(t *testing.T) {
@@ -116,14 +85,7 @@ func Test_Middleware(t *testing.T) {
 			CountryData(gomock.Any()).
 			Return(expectCountries, nil).AnyTimes()
 
-		jsonData, _ := json.Marshal(expectCountries)
-
-		m.rjson.
-			EXPECT().
-			Marshal(gomock.Any()).
-			Return(jsonData, nil).AnyTimes()
-
-		client, err := controller.NewCountry(m.rd, m.rjson)
+		client, err := controller.NewCountry(m.rd)
 		assert.Nil(t, err)
 		assert.NotNil(t, client)
 		client.Middleware(res, req)

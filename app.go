@@ -15,6 +15,8 @@ import (
 
 	config "github.com/junkd0g/covid-vaccine/internal/config"
 	"github.com/junkd0g/covid-vaccine/internal/controller"
+	"github.com/junkd0g/covid-vaccine/internal/data"
+	"github.com/junkd0g/covid-vaccine/internal/vaccine"
 )
 
 //Service object that contains the Port and Router of the application
@@ -39,8 +41,18 @@ func (s Service) run() {
 
 	}
 
+	dataClient, err := data.NewReadDataClient("./scripts/get_data/data_out.json")
+	if err != nil {
+		panic(fmt.Errorf("data_client %w", err))
+	}
+
+	vaccineClient, err := vaccine.NewClient(dataClient)
+	if err != nil {
+		panic(fmt.Errorf("vaccine_client %w", err))
+	}
+
 	s.Port = configData.Server.Port
-	country, err := controller.NewCountry(nil, nil)
+	country, err := controller.NewCountry(vaccineClient)
 	if err != nil {
 		panic(fmt.Errorf("creating_mail_controller %w", err))
 	}

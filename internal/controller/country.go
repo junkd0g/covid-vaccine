@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -13,32 +14,22 @@ type Vaccine interface {
 	CountryData(country string) (vaccine.CountryDataResponse, error)
 }
 
-type JSON interface {
-	Marshal(v interface{}) ([]byte, error)
-}
-
 type EmailSendResponse struct {
 	Success bool `json:"success"`
 }
 
 type countryMiddlewareClient struct {
 	vaccineClient Vaccine
-	json          JSON
 }
 
 // NewCountry creates new object of mailjet's client
-func NewCountry(countryData Vaccine, json JSON) (countryMiddlewareClient, error) {
+func NewCountry(countryData Vaccine) (countryMiddlewareClient, error) {
 	if countryData == nil {
 		return countryMiddlewareClient{}, fmt.Errorf("controller_NewCountry_empty_countryData")
 	}
 
-	if json == nil {
-		return countryMiddlewareClient{}, fmt.Errorf("controller_NewCountry_empty_json")
-	}
-
 	return countryMiddlewareClient{
 		vaccineClient: countryData,
-		json:          json,
 	}, nil
 }
 
@@ -60,7 +51,7 @@ func (c countryMiddlewareClient) perform(country string) ([]byte, int) {
 		errorJSONBody, _ := merror.SimpeErrorResponseWithStatus(500, err)
 		return errorJSONBody, 500
 	}
-	jsonBody, err := c.json.Marshal(data)
+	jsonBody, err := json.Marshal(data)
 	if err != nil {
 		errorJSONBody, _ := merror.SimpeErrorResponseWithStatus(500, err)
 		return errorJSONBody, 500
