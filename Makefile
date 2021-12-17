@@ -11,3 +11,6 @@ test:
 	go test ./...
 test-conver:
 	go test -cover ./...
+update-data:
+	./scripts/get_data/file.sh
+	perl ./scripts/get_data/download.pl data.csv
