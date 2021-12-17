@@ -1,0 +1,2 @@
+mockgen -destination=internal/mocks/mock_vaccine.go  -package=Mocks -source=internal/vaccine/vaccine.go
+mockgen -destination=internal/mocks/controller/mock_vaccine.go  -package=vaccine -source=internal/controller/country.go

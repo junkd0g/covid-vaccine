@@ -1,6 +1,7 @@
 .DS_Store
 vendor
 
+app
 scripts/.DS_Store
 script/get_data/data.csv
 script/get_data/data_out.json 
