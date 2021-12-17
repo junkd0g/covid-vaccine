@@ -7,7 +7,11 @@ UNDER CONSTRUCTION
 
 ## Without Docker for macos and linux users
 
-## With docker-compose
+## With docker
+
+ ```docker build -t covid-vaccine .```
+
+ ```docker run -p 8889:8889 covid-vaccine```
 
 # Test it
 
